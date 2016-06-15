@@ -89,12 +89,15 @@ module.exports = function (options, logger) {
       req.log.info(reqStartData, 'request start')
     }
     res.on('finish', function() {
+      var duration = Date.now() - start;
       var reqFinishData =
         { res: res
-        , duration: Date.now() - start
+        , duration: duration
         }
       if (!requestStart || verbose) reqFinishData.req = req
-      res.log.info(reqFinishData, 'request finish')
+      // :method :url :status :response-time ms - :res[content-length]
+      var msg = req.method + ' ' + req.originalUrl + ' ' + res.statusCode + ' ' + duration + ' ms';
+      res.log.info(reqFinishData, msg)
     })
     res.on('close', function () {
       res.log.warn(
